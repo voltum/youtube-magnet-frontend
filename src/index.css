@@ -1,13 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+html{
+  scroll-behavior: smooth;
+}
+html:before{
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  z-index: -5;
+  /* background: linear-gradient(180deg,rgba(50,70,80,.9) 0, #0d101b 100%); */
+  background: linear-gradient(180deg, #293b4ee6, #0d101b 100%);
+}
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Chakra Petch', sans-serif;
+  overflow-y: scroll;
+  background-color: #1e293b;
+  @apply text-white;
+}
+body::before{
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-image: url('img/pattern.png');
+  background-size: 4.6875rem;
+  background-attachment: initial;
+  z-index: -5;
+}
+body::after{
+  content: '';
+  position: fixed;
+  top: 0;
+  height: 100%;
+  left: 0;
+  right: 0;
+  z-index: -10;
+  background-color: #273136;
+  background-image: url('img/cover.jpg');
+  background-position: center;
+  background-attachment: initial;
+  transition: .2s linear;
+  background-size: cover;
+}
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Track */
+::-webkit-scrollbar-track {
+  background: #0d101b;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #3b4f5a;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+a{
+  @apply text-blue-200 hover:text-blue-300
+}
+tbody td, thead th{
+  @apply p-2;
+}
+thead th{
+  @apply text-left;
+}
+tbody>tr:nth-child(odd) {
+  background: rgba(255,255,255,0.1);
+}
+form input{
+  @apply w-full bg-slate-700 text-white outline-none px-2 py-1
 }

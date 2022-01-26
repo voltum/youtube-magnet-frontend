@@ -7,16 +7,20 @@ import {
 } from "react-router-dom";
 import logo from './logo.svg';
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Collections from './pages/Collections';
 import NotFound from './pages/NotFound';
+import { Toaster } from 'react-hot-toast';
+import CustomToaster from './components/CustomToaster';
 
 function App() {
   return (
     <Router>
+      <CustomToaster />
       <div className='pt-20'>
         <Header />
         <Sidebar />

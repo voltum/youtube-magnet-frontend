@@ -66,11 +66,11 @@ body::after{
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-a{
-  @apply text-blue-200 hover:text-blue-300
+td>a{
+  @apply underline underline-offset-2 hover:text-blue-300
 }
 tbody td, thead th{
-  @apply p-2;
+  @apply py-2 px-3 text-sm text-gray-100 text-ellipsis overflow-hidden whitespace-nowrap;
 }
 thead th{
   @apply text-left;
@@ -78,6 +78,15 @@ thead th{
 tbody>tr:nth-child(odd) {
   background: rgba(255,255,255,0.1);
 }
-form input{
-  @apply w-full bg-slate-700 text-white outline-none px-2 py-1
+tbody>tr:nth-child(odd):hover{
+  box-shadow: inset 0px 0px 7px #ffffff2a;
+}
+form input, input[type='text']{
+  @apply w-full bg-slate-700 text-white outline-none px-2 py-1 ring-1 ring-slate-500 border-slate-500
+}
+input, optgroup, select, textarea{
+  @apply bg-slate-700 text-white outline-none px-2 py-1 ring-1 ring-slate-500 border-slate-500
+}
+button:disabled{
+  @apply opacity-50
 }

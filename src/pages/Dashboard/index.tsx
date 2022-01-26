@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Column } from 'react-table';
 import Card from '../../components/Card'
 import Table from '../../components/Table';
+import { useEvents } from '../../hooks/useEvents';
 
 const data: Array<object> = [
     {
@@ -63,7 +64,12 @@ interface QueueCounts{
     failed: number
 }
 
-function Dashboard() {
+interface Props{
+    // events: Array<string>
+    // getStatus: Function
+}
+
+function Dashboard({ }: Props) {
     const [queueCounts, setQueueCounts] = useState<QueueCounts>();
     
     const host = window.location.hostname;
@@ -78,6 +84,7 @@ function Dashboard() {
         .catch(error => {
             console.log(error);
         })
+
         return () => {}
     }, [])
 
@@ -131,16 +138,20 @@ function Dashboard() {
                 </Card>
                 <Card>
                   <div className='mb-2'>
-                      <span className='uppercase font-semibold text-sm text-gray-400'>Site visitors</span>
+                      <span className='uppercase font-semibold text-sm text-gray-400'>Events</span>
                   </div>
                   <div className='mb-2'>
-                      <span className='uppercase font-bold text-2xl'>$35.2k</span>
+                      <span className='uppercase font-bold text-2xl'>...</span>
                   </div>
                   <div>
                       <ul className='text-xs text-gray-400'>
-                          <li>20.4% more than last week</li>
+                            {
+                                // events.map((event: string) => <li>{event}</li>)
+                            }
+                            {/* <button onClick={()=>{getStatus()}}>Emit</button> */}
+                          {/* <li>20.4% more than last week</li>
                           <li>33.5% new orders</li>
-                          <li>6.21% conversion rate</li>
+                          <li>6.21% conversion rate</li> */}
                       </ul>
                   </div>
                 </Card>

@@ -6,6 +6,9 @@ module.exports = {
     extend: {
       backgroundImage: {
         'pattern': "url('/img/pattern.png')"
+      },
+      boxShadow: {
+        
       }
     },
   },

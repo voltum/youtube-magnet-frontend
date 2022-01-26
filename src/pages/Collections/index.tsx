@@ -32,6 +32,7 @@ function Collections() {
     // Const declarations
     const host = window.location.hostname;
     const protocol = window.location.protocol;
+    // Config axios TBD
 
     const columns: Array<any> = [
         {
@@ -57,7 +58,7 @@ function Collections() {
         {
             Header: 'Email',
             accessor: 'email',
-            Cell: ({value, row}: any) => <>{value ? value : <input type={'email'} id={`input_email_${row.original._id}`} placeholder='Put email' onKeyPress={(e) => e.key === 'Enter' && console.log(e.currentTarget.value)} autoComplete={`input_email_${row.original._id}`} />}</>,
+            Cell: ({value, row}: any) => <>{<input type={'email'} id={`input_email_${row.original._id}`} defaultValue={value} placeholder='Put email' onKeyPress={(e) => e.key === 'Enter' && updateEmail(e, row.original._id, e.currentTarget.value)} autoComplete={`input_email_${row.original._id}`} className={value ? 'opacity-50 ring-green-700' : 'ring-slate-300'} />}</>,
             style: {
                 width: 100,
                 minWidth: 50,
@@ -123,6 +124,10 @@ function Collections() {
 
         getFoldersList().then(response => {
             setCollectionsList(response.data.map(({_id, name, type}) => ({_id, name: capitalizeFirstLetter(name), type })));
+        }).catch((error)=>{
+            // Make a notification
+            console.log('Folders',error)
+            toast.error(error);
         })
 
     }, []);
@@ -153,10 +158,12 @@ function Collections() {
 
         // Function call
         getChannelsList(currentCollection).then(response => {
+            console.log('response!!!');
             // Set the data
             setChannelsList(response.data);
         }).catch(error => {
             // Make a notification
+            console.log('Channels', error)
             toast.error(error);
         }).finally(() => {
             // Stop loading
@@ -188,6 +195,21 @@ function Collections() {
         axios.post(`${protocol}//${host}:3001/channels/upload`, importFormData, { params: { folder: currentCollection }})
             .then(response => {
                 setImportModalToggle(false);
+            })
+    }
+
+    function updateEmail(e: any, id: string, email: string){
+        e.preventDefault();
+        axios.put(`${protocol}//${host}:3001/channels`, { email }, { params: { id }})
+            .then(response => {
+                toast.success('Email updated!');
+                const cur = currentCollection;
+                setCurrentCollection('');
+                setCurrentCollection(currentCollection);
+              
+            })
+            .catch(error => {
+                toast.error('Error while updating email');
             })
     }
 

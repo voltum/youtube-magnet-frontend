@@ -27,8 +27,8 @@ interface Channel{
 }
 
 export const getFoldersList = () : Promise<AxiosResponse<Folder[], any>> => {
-    return axios.get<Folder[]>(`${protocol}//${host}:3001/folders`, { timeout: 5000 });
+    return axios.get<Folder[]>(`${protocol}//${host}:3001/folders`);
 }
 export const getChannelsList = (folder: string) : Promise<AxiosResponse<Channel[], any>> => {
-    return axios.get<Channel[]>(`${protocol}//${host}:3001/channels`, { params: { folder }, timeout: 5000 });
+    return axios.get<Channel[]>(`${protocol}//${host}:3001/channels`, { params: { folder } });
 }

@@ -4,7 +4,10 @@ import { io, Socket } from "socket.io-client";
 import toast, { Toaster } from 'react-hot-toast';
 
 
-const SERVER_URL = 'http://localhost:3001'
+// Const declarations
+const host = window.location.hostname;
+const protocol = window.location.protocol;
+const SERVER_URL = `${protocol}//${host}:3001`;
 
 interface ServerToClientEvents {
     noArg: () => void;

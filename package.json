@@ -1,7 +1,7 @@
 {
   "name": "youtube-magnet-frontend",
   "version": "0.1.0",
-  "proxy": "http://localhost:3001",
+  "proxys": "http://localhost:3001",
   "private": true,
   "dependencies": {
     "@heroicons/react": "^1.0.5",

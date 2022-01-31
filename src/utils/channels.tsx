@@ -10,8 +10,9 @@ interface Folder{
     type: string
 }
 
-interface Channel{
+export interface Channel{
     id: string
+    folder: string
     title: string
     url: string
     description: string
@@ -24,6 +25,8 @@ interface Channel{
     subscriberCount: number
     lastVideoPublishedAt: Date
     publishedAt: Date
+    createdAt: Date
+    updatedAt: Date
 }
 
 export const getFoldersList = () : Promise<AxiosResponse<Folder[], any>> => {

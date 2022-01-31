@@ -24,7 +24,7 @@ function App() {
       <div className='pt-20'>
         <Header />
         <Sidebar />
-        <div className='p-4 ml-64'>
+        <div className='p-4 ml-52'>
           <Routes>
             <Route path="/collections" element={<Collections />}></Route>
             <Route path="/about" element={<About />}></Route>

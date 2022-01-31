@@ -1,17 +1,22 @@
-import { TrashIcon } from '@heroicons/react/outline';
+import { IdentificationIcon, TrashIcon } from '@heroicons/react/outline';
 import axios from 'axios';
 import React, { FormEvent, FormEventHandler, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Link } from 'react-router-dom';
-import { CellProps, Column, Row } from 'react-table';
+import { CellProps, Column, ColumnGroup, Row } from 'react-table';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import Modal from '../../components/Modal';
-import Table, { Indicator } from '../../components/Table'
+import Table, { Indicator, NumberRangeColumnFilter } from '../../components/Table'
 import { useToggle } from '../../hooks/useToggle';
 import { capitalizeFirstLetter } from '../../utils/common';
 import { getChannelsList, getFoldersList } from '../../utils/channels';
 import toast from 'react-hot-toast';
+import Dropdown from '../../components/Dropdown';
+import ModernDrawer from '../../components/Drawer';
+import ChannelInfo from '../../components/ChannelInfo';
+import { TabPanel, useTabs } from 'react-headless-tabs';
+import { TabSelector } from '../../components/Tabs';
 
 
 function Collections() {
@@ -26,49 +31,54 @@ function Collections() {
     const [modalToggle, setModalToggle] = useToggle(false);
     const [newFolderModalToggle, setNewFolderModalToggle] = useToggle(false);
     const [importModalToggle, setImportModalToggle] = useToggle(false);
+    const [infoDrawerToggle, setInfoDrawerToggle] = useToggle(false);
+    const [drawerChannelID, setDrawerChannelID] = useState<string | null>(null);
+    // Tabs
+    const [ activeTab, setActiveTab ] = useTabs(['file', 'single'], 'file');
     // Elements
     const collectionSelect = useRef<HTMLSelectElement>(null);
     const newFolderForm = useRef<HTMLFormElement>(null);
+    const importFileForm = useRef<HTMLFormElement>(null);
+    const importSingleForm = useRef<HTMLFormElement>(null);
     // Const declarations
     const host = window.location.hostname;
     const protocol = window.location.protocol;
     // Config axios TBD
 
-    const columns: Array<any> = [
+    const columns: Array<Column<{}>> = [
         {
             Header: '#',
             accessor: 'index',
-            Cell: (props: any) => <>{Number(props.row.id) + 1}</>
+            Cell: (props: any) => <>{Number(props.row.id) + 1}</>,
+            width: 50
         },
         {
             Header: '⦀',
             accessor: 'chunkStamp',
-            Cell: (props: any) => <>{<Indicator type={props.value === chunks[0] ? 'new' : props.value === chunks[1] ? 'secondNew' : undefined} /> }</>
+            Cell: (props: any) => <>{<Indicator type={props.value === chunks[0] ? 'new' : props.value === chunks[1] ? 'secondNew' : undefined} /> }</>,
+            width: 40
         },
         {
             Header: 'Title',
             accessor: 'title',
             Cell: (props: any) => <a href={props.row.original.url} target={'_blank'}>{props.value}</a>,
-            style: {
-                width: 100,
-                minWidth: 50,
-                maxWidth: 100
-            }
+            width: 150,
+            
         },
         {
             Header: 'Email',
             accessor: 'email',
             Cell: ({value, row}: any) => <>{<input type={'email'} id={`input_email_${row.original._id}`} defaultValue={value} placeholder='Put email' onKeyPress={(e) => e.key === 'Enter' && updateEmail(e, row.original._id, e.currentTarget.value)} autoComplete={`input_email_${row.original._id}`} className={value ? 'opacity-50 ring-green-700' : 'ring-slate-300'} />}</>,
-            style: {
-                width: 100,
-                minWidth: 50,
-                maxWidth: 100
-            }
+            width: 210
         },
         {
             Header: 'Subscriber count',
             accessor: 'subscriberCount',
-            Cell: ({value}: any) => <>{value ? value.toLocaleString() : <span className='text-yellow-500 text-xs'>HIDDEN</span>}</>
+            Filter: NumberRangeColumnFilter,
+            filter: 'between',
+            aggregate: 'sum',
+            Cell: ({value}: any) => <>{value ? value.toLocaleString() : <span className='text-yellow-500 text-xs'>HIDDEN</span>}</>,
+            width: 180
         },
         // {
         //     Header: 'Country',
@@ -77,27 +87,32 @@ function Collections() {
         {
             Header: 'Language',
             accessor: 'language',
-            Cell: ({value}: any) => <>{value ? value : <span className='text-yellow-500 text-xs'>N/A</span>}</>
+            Cell: ({value}: any) => <>{value ? value : <span className='text-yellow-500 text-xs'>N/A</span>}</>,
+            width: 120
         },
-        // {
-        //     Header: 'Social links',
-        //     accessor: 'socialLinks',
-        // },
         {
             Header: 'View count',
             accessor: 'viewCount',
-            Cell: ({value}: any) => <>{value?.toLocaleString()}</>
+            Cell: ({value}: any) => <>{value?.toLocaleString()}</>,
+            width: 120
         },
         {
             Header: 'Video count',
             accessor: 'videoCount',
-            Cell: ({value}: any) => <>{value?.toLocaleString()}</>
+            Cell: ({value}: any) => <>{value?.toLocaleString()}</>,
+            width: 100
         },
         {
             Header: 'Last video',
             accessor: 'lastVideoPublishedAt',
-            Cell: ({value}: any) => <>{moment(value).fromNow()}</>
+            Cell: ({value}: any) => <>{moment(value).fromNow()}</>,
         },
+        {
+            Header: 'Opts',
+            accessor: 'options',
+            Cell: ({value, row}: any) => <><button onClick={()=>openInfoDrawer(row.original._id)}><IdentificationIcon className='w-5 h-5' /></button></>,
+            width: 50
+        }
     ];
 
     const collectionsColumns: Array<Column> = [
@@ -192,9 +207,50 @@ function Collections() {
     function importFormSubmitted(e: any){
         e.preventDefault();
         const importFormData = new FormData(e.target);
-        axios.post(`${protocol}//${host}:3001/channels/upload`, importFormData, { params: { folder: currentCollection }})
+        const file: any = importFormData.get('file');
+
+        const shouldUpdate: boolean = importFormData.get('should_update') ? true : false;
+        
+        if(!file.name){
+            toast.error("Please, select a file!"); 
+            return;
+        }
+
+        axios.post(`${protocol}//${host}:3001/channels/upload`, importFormData, { params: { folder: currentCollection, shouldUpdate }})
             .then(response => {
                 setImportModalToggle(false);
+            }).catch(error => {
+                toast.error('Error while making request!');
+            }).finally(() => {
+                const fileInput = importFileForm.current?.file;
+                if(fileInput) fileInput.value = "";
+            })
+    }
+
+    function importSingleFormSubmitted(e: any){
+        e.preventDefault();
+        const importSingleData = new FormData(e.target);
+        const url: any = importSingleData.get('url');
+
+        if(!url) { 
+            toast.error("Please, enter channel's URL");
+            return;
+        }
+        try{
+            const urlObj = new URL(url);
+        } catch {
+            toast.error("Please, enter valid URL");
+            return;
+        }
+
+        axios.post(`${protocol}//${host}:3001/channels`, { url, folder: currentCollection, chunkStamp: chunks[0] })
+            .then(response => {
+                setImportModalToggle(false);
+            }).catch(error => {
+                toast.error('Error while making request!');
+            }).finally(() => {
+                const urlInput = importSingleForm.current?.url;
+                if(urlInput) urlInput.value = "";
             })
     }
 
@@ -204,12 +260,21 @@ function Collections() {
             .then(response => {
                 toast.success('Email updated!');
                 const cur = currentCollection;
-                setCurrentCollection('');
-                setCurrentCollection(currentCollection);
-              
+                refresh();              
             })
             .catch(error => {
                 toast.error('Error while updating email');
+            })
+    }
+
+    function deleteChannel(id: string){
+        axios.delete(`${protocol}//${host}:3001/channels/${id}`)
+            .then(response => {
+                toast.success('Channel has been deleted!');
+                refresh();
+            })
+            .catch(error => {
+                toast.error('Error while deleting the channel');
             })
     }
 
@@ -217,8 +282,37 @@ function Collections() {
         window.location.assign(`${protocol}//${host}:3001/channels/export?folder=${folder}`);
     }
 
+    function openInfoDrawer(id: string){
+        setDrawerChannelID(id);
+        setInfoDrawerToggle(true);
+    }
+
+    function refresh(){
+        const cur = currentCollection;
+        setCurrentCollection('');
+        setTimeout(() => {
+            setCurrentCollection(cur);
+        }, 300);
+    }
+
     return (
         <div>
+            <ModernDrawer
+                isOpen={infoDrawerToggle}
+                onClose={()=>(setInfoDrawerToggle(false))}
+                direction='right'      
+                className='p-4 w-32'
+                title='Channel info'
+                width={500}
+                footer={()=> (
+                    <div onClick={() => {
+                        let conf = window.confirm(`Are you sure to delete this channel?`);
+                        if(conf && drawerChannelID) deleteChannel(drawerChannelID);
+                    }}><Button type='danger'>Delete</Button></div>
+                )}
+            >
+                {<ChannelInfo data={channelsList.find(element => element._id === drawerChannelID)} />}
+            </ModernDrawer>
             <Modal 
                 visible={modalToggle} 
                 onCancel={()=>setModalToggle(false)}
@@ -243,11 +337,31 @@ function Collections() {
                 visible={importModalToggle} 
                 onCancel={()=>setImportModalToggle(false)}
                 header={()=>'Import channels'}
-                footer={()=><button form='importChannelsForm' type='submit'><Button>Import</Button></button>}
+                footer={()=><button form={activeTab === 'file' ? 'importChannelsForm' : 'importSingleChannelForm'} type='submit'><Button>Import</Button></button>}
             >
-                <form ref={newFolderForm} id="importChannelsForm" onSubmit={importFormSubmitted}>
-                    <input type="file" name="file" placeholder='Select scv file'></input>
-                </form>
+                {/* Tabs navigation */}
+                <nav className='flex'>
+                    <TabSelector isActive={activeTab === 'file'} onClick={() => setActiveTab('file')} >File</TabSelector>
+                    <TabSelector isActive={activeTab === 'single'} onClick={() => setActiveTab('single')} >Single</TabSelector>
+                </nav>
+
+                {/* Tabs panels */}
+                <TabPanel hidden={activeTab !== "file"}>
+                    <form ref={importFileForm} id="importChannelsForm" onSubmit={importFormSubmitted}>
+                        <input type="file" name="file" placeholder='Select scv file'></input>
+                        <div className='my-3'>
+                            <input type="checkbox" id="should_update" name="should_update" value={1} className='w-auto mr-2'/>
+                            <label htmlFor="should_update" className='inline'>Should update</label>
+                        </div>
+                    </form>
+                </TabPanel>
+
+                <TabPanel hidden={activeTab !== "single"}>
+                    <form ref={importSingleForm} id="importSingleChannelForm" onSubmit={importSingleFormSubmitted}>
+                        <input type={'text'} name={'url'} placeholder='Input channel url'></input>
+                    </form>
+                </TabPanel>
+
             </Modal>
 
             <div className='flex justify-between gap-4'>
@@ -263,7 +377,7 @@ function Collections() {
                     {currentCollection?<div onClick={() => downloadChannels(currentCollection)}><Button>Download channels</Button></div>:null}
                     <div onClick={setNewFolderModalToggle}><Button>Add new collection</Button></div>
                     <div onClick={setModalToggle}><Button>Manage collections</Button></div>
-                    <div onClick={()=>{setCurrentCollection(''); setCurrentCollection(currentCollection)}}><Button>Refresh</Button></div>
+                    <div onClick={() => refresh()}><Button>Refresh</Button></div>
                 </div>
             </div>
             <Card>
@@ -271,7 +385,8 @@ function Collections() {
                     filter={{
                         search: {
                             filters: ['title', 'email']
-                        }
+                        },
+                        between: true
                     }}
                     isLoading={channelsLoading}
                 />

@@ -29,12 +29,10 @@ function getToastText(progress: number){
 
 export const useEvents = () => {
 
-    const [visible, setVisible] = useState(false);
-    const [statusText, setStatusText] = useState('sss');
+    const [status, setStatus] = useState<{ visible: boolean, text?: string, type?: string }>({ visible: false, text: '' });
 
     const [individualProgress, setIndividualProgress] = useState(0);
-    const [count, setCount] = useState(0);
-    const [totalCount, setTotalCount] = useState(0);
+    const [remainedCount, setRemainedCount] = useState(null);
 
     const [logging, setLogging] = useState<Array<string>>([]);
 
@@ -46,32 +44,36 @@ export const useEvents = () => {
 
         toast('Connected!');
 
-        socket.on('events:active', (event: any) => {            
-            toast.loading('Channel is processing...', { id: 'mainToast' });
+        socket.on('events:active', (event: any) => {
+            setRemainedCount(event.remainedCount);
 
-            setCount(count + 1);
-            if(!totalCount) setTotalCount(event.remain);
+            setStatus({ visible: true, text: `Channel is processing... ${event.remainedCount ? 'Remained: ' + event.remainedCount : ''}` });
 
-            setLogging(prevState => [...prevState, `Channel "${event.id}" is processing...`]);
+            // setLogging(prevState => [...prevState, `Channel "${event.id}" is processing...`]);
         });
 
         socket.on('events:progress', (event) => {
-            setIndividualProgress(event.progress);
-            toast.loading(`Channel is processing... ${event.progress}%`, { id: 'mainToast' });
-            setLogging(prevState => [...prevState, `Channel "${event.id}" is processing ${event.progress}%...`]);
+            // setIndividualProgress(event.progress);
+
+            setStatus({ visible: true, text: `Channel is processing (${event.progress}%). ${event.remainedCount ? 'Remained: ' + event.remainedCount : ''}`, type: 'loading' });
+
+            // setLogging(prevState => [...prevState, `Channel "${event.id}" is processing ${event.progress}%...`]);
         })
         
         socket.on('events:empty', () => {
+            setStatus({ visible: false, text: `All channels proceeded!`, type: 'success' });
 
-            toast.success('All channels proceeded!', { id: 'mainToast' });
-            setLogging(prevState => [...prevState, `All channels are ready...`]);
+            setStatus({ visible: false });
+            // setLogging(prevState => [...prevState, `All channels are ready...`]);
         })
 
         socket.on('events:error', (error) => {
             console.log('Error!', error);
-            
-            toast.error('Error: ' + error)
-            setLogging(prevState => [...prevState, `Error: ${error}...`]);
+
+            toast.error(`Error! ${error}`);
+
+            setStatus({ visible: false });
+            // setLogging(prevState => [...prevState, `Error: ${error}...`]);
         })
 
         return () => {
@@ -84,6 +86,6 @@ export const useEvents = () => {
     })
 
 
-    return { logging, individualProgress, count, totalCount };
+    return { status };
 }
 

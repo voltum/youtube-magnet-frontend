@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import toast, { ToastBar, Toaster, useToaster } from 'react-hot-toast';
 import { ToastContainer } from 'react-toastify';
 import { useEvents } from '../../hooks/useEvents';
 
-const CustomToaster = () =>
-{
-  const { logging, individualProgress, count, totalCount } = useEvents();
+const CustomToaster = () => {
 
   return <Toaster
     toastOptions={{
@@ -40,3 +38,19 @@ const CustomToaster = () =>
 };
 
 export default CustomToaster;
+
+export const CustomToasterComponent = () => {
+  const { status } = useEvents();
+
+  useEffect(() => {
+    if(status.text)
+      toast(status.text || '', { id: "mainToast", duration: status.visible ? Infinity : 0 });
+    else 
+      toast.dismiss("mainToast");
+
+    if(status.type === 'success') toast.success(status.text || '', { duration: Infinity });
+
+  }, [status]);
+
+  return <></>;
+}

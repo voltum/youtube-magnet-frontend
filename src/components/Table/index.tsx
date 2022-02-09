@@ -38,6 +38,8 @@ export function NumberRangeColumnFilter({
         <div
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
+            gap: '5px',
             justifyContent: 'space-between',
             alignItems: 'baseline',
             paddingTop: 5,
@@ -51,13 +53,12 @@ export function NumberRangeColumnFilter({
               const val = e.target.value
               setFilter((old: any[] = []) => [val ? parseInt(val, 10) : undefined, old[1]])
             }}
-            placeholder={`(${min})`}
+            placeholder={`From`}
             style={{
               minWidth: '80px',
-              marginRight: '0.5rem',
+              maxWidth: '100px'
             }}
           />
-          -
           <input
             id={`${id}_2`}
             value={filterValue[1] || ''}
@@ -66,16 +67,47 @@ export function NumberRangeColumnFilter({
               const val = e.target.value
               setFilter((old: any[] = []) => [old[0], val ? parseInt(val, 10) : undefined])
             }}
-            placeholder={`(${max})`}
+            placeholder={`To`}
             style={{
               minWidth: '80px',
-              marginLeft: '0.5rem',
+              maxWidth: '100px'
             }}
           />
         </div>
       </>
     )
 }
+
+export function SelectColumnFilter({
+    column: { filterValue = [], render, preFilteredRows, setFilter, id },
+  }: FilterProps<any>) {
+    // Calculate the options for filtering
+    // using the preFilteredRows
+    const options = React.useMemo(() => {
+      const options = new Set()
+      preFilteredRows.forEach(row => {
+        options.add(row.values[id])
+      })
+      return [...Array.from(options.values())]
+    }, [id, preFilteredRows])
+  
+    // Render a multi-select box
+    return (
+      <select
+        value={filterValue || ""}
+        onChange={e => {
+          setFilter(e.target.value || undefined)
+        }}
+      >
+        <option value="">All</option>
+        {options.map((option, i) => (
+          <option key={i} value={option ? 'true' : 'false'}>
+            {option ? 'Exists' : 'Not exists'}
+          </option>
+        ))}
+      </select>
+    )
+  }
 
 function Table({data: dataSource, columns: columnsSource, pagination, filter, isLoading}: Props) {
     const data = React.useMemo(() => dataSource, [dataSource]);

@@ -7,7 +7,7 @@ import { CellProps, Column, ColumnGroup, Row } from 'react-table';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import Modal from '../../components/Modal';
-import Table, { Indicator, NumberRangeColumnFilter } from '../../components/Table'
+import Table, { Indicator, NumberRangeColumnFilter, SelectColumnFilter } from '../../components/Table'
 import { useToggle } from '../../hooks/useToggle';
 import { capitalizeFirstLetter } from '../../utils/common';
 import { getChannelsList, getFoldersList } from '../../utils/channels';
@@ -17,6 +17,7 @@ import ModernDrawer from '../../components/Drawer';
 import ChannelInfo from '../../components/ChannelInfo';
 import { TabPanel, useTabs } from 'react-headless-tabs';
 import { TabSelector } from '../../components/Tabs';
+import { EmailIndicator } from '../../components/Table/EmailIndicator';
 
 
 function Collections() {
@@ -66,6 +67,13 @@ function Collections() {
             
         },
         {
+            Header: '',
+            accessor: 'emailExists',
+            Filter: SelectColumnFilter,
+            Cell: ({value, row}: any) => <>{<EmailIndicator type={value} />}</>,
+            width: 30
+        },
+        {
             Header: 'Email',
             accessor: 'email',
             Cell: ({value, row}: any) => <>{<input type={'email'} id={`input_email_${row.original._id}`} defaultValue={value} placeholder='Put email' onKeyPress={(e) => e.key === 'Enter' && updateEmail(e, row.original._id, e.currentTarget.value)} autoComplete={`input_email_${row.original._id}`} className={value ? 'opacity-50 ring-green-700' : 'ring-slate-300'} />}</>,
@@ -78,7 +86,7 @@ function Collections() {
             filter: 'between',
             aggregate: 'sum',
             Cell: ({value}: any) => <>{value ? value.toLocaleString() : <span className='text-yellow-500 text-xs'>HIDDEN</span>}</>,
-            width: 180
+            width: 140
         },
         // {
         //     Header: 'Country',
@@ -93,12 +101,16 @@ function Collections() {
         {
             Header: 'View count',
             accessor: 'viewCount',
+            Filter: NumberRangeColumnFilter,
+            filter: 'between',
             Cell: ({value}: any) => <>{value?.toLocaleString()}</>,
             width: 120
         },
         {
             Header: 'Video count',
             accessor: 'videoCount',
+            Filter: NumberRangeColumnFilter,
+            filter: 'between',
             Cell: ({value}: any) => <>{value?.toLocaleString()}</>,
             width: 100
         },
@@ -139,9 +151,7 @@ function Collections() {
 
         getFoldersList().then(response => {
             setCollectionsList(response.data.map(({_id, name, type}) => ({_id, name: capitalizeFirstLetter(name), type })));
-        }).catch((error)=>{
-            // Make a notification
-            console.log('Folders',error)
+        }).catch((error)=>{                                    
             toast.error(error);
         })
 

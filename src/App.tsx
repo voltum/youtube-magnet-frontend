@@ -15,18 +15,21 @@ import About from './pages/About';
 import Collections from './pages/Collections';
 import NotFound from './pages/NotFound';
 import { Toaster } from 'react-hot-toast';
-import CustomToaster from './components/CustomToaster';
+import CustomToaster, { CustomToasterComponent } from './components/CustomToaster';
+import Analytics from './pages/Analytics';
 
 function App() {
   return (
     <Router>
       <CustomToaster />
+      <CustomToasterComponent />
       <div className='pt-20'>
         <Header />
         <Sidebar />
         <div className='p-4 ml-52'>
           <Routes>
             <Route path="/collections" element={<Collections />}></Route>
+            <Route path="/analytics" element={<Analytics />}></Route>
             <Route path="/about" element={<About />}></Route>
             <Route path="/" element={<Dashboard />}></Route>
             <Route path="*" element={<NotFound />}></Route>

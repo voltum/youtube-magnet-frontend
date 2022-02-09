@@ -90,3 +90,6 @@ input, optgroup, select, textarea{
 button:disabled{
   @apply opacity-50
 }
+table select{
+  width: 18px;
+}

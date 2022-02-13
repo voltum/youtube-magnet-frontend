@@ -2,12 +2,7 @@ import { ReactText, ReducerAction, ReducerState, useEffect, useReducer, useRef, 
 // import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
 import toast, { Toaster } from 'react-hot-toast';
-
-
-// Const declarations
-const host = window.location.hostname;
-const protocol = window.location.protocol;
-const SERVER_URL = `${protocol}//${host}:3001`;
+import { AppConfig } from "../utils/config";
 
 interface ServerToClientEvents {
     noArg: () => void;
@@ -36,7 +31,7 @@ export const useEvents = () => {
 
     const [logging, setLogging] = useState<Array<string>>([]);
 
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SERVER_URL, {});
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(AppConfig.getServerURL(), {});
 
     useEffect(() => {
         

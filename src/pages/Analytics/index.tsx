@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Column } from 'react-table';
 import Card from '../../components/Card';
 import Table, { Indicator } from '../../components/Table';
+import { AppConfig } from '../../utils/config';
 
 function Analytics() {
 
@@ -18,7 +19,7 @@ function Analytics() {
     }, []);
 
     const getLogs = () => {
-        return axios.get(`${protocol}//${host}:3001/log`)
+        return axios.get(AppConfig.getLogsURL())
             .then((response) => {
                 setLogsList(response.data);
             })

@@ -4,6 +4,7 @@ import { Column } from 'react-table';
 import Card from '../../components/Card'
 import Table from '../../components/Table';
 import { useEvents } from '../../hooks/useEvents';
+import { AppConfig } from '../../utils/config';
 
 const data: Array<object> = [
     {
@@ -76,7 +77,7 @@ function Dashboard({ }: Props) {
     const protocol = window.location.protocol;
     
     useEffect(() => {
-        axios.get<QueueCounts, any>(`${protocol}//${host}:3001/channels/stats`)
+        axios.get<QueueCounts, any>(`${AppConfig.getChannelsURL()}/stats`)
         .then(response => {
             console.log(response)
             setQueueCounts(response.data);

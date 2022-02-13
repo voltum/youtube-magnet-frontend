@@ -18,6 +18,7 @@ import ChannelInfo from '../../components/ChannelInfo';
 import { TabPanel, useTabs } from 'react-headless-tabs';
 import { TabSelector } from '../../components/Tabs';
 import { EmailIndicator } from '../../components/Table/EmailIndicator';
+import { AppConfig } from '../../utils/config';
 
 
 function Collections() {
@@ -144,7 +145,7 @@ function Collections() {
     ];
 
     const deleteFolder = (id: string) => {
-        return axios.delete(`${protocol}//${host}:3001/folders/${id}`);
+        return axios.delete(`${AppConfig.getFoldersURL()}/${id}`);
     }
 
     useEffect(() => {
@@ -205,7 +206,7 @@ function Collections() {
     function newFolderFormSubmitted(e: any){
         e.preventDefault();
         const folderName = e.target.elements.folder_name.value;
-        axios.post(`${protocol}//${host}:3001/folders`, { name: folderName })
+        axios.post(`${AppConfig.getFoldersURL()}`, { name: folderName })
             .then(response => {
                 window.location.reload();
             })
@@ -226,7 +227,7 @@ function Collections() {
             return;
         }
 
-        axios.post(`${protocol}//${host}:3001/channels/upload`, importFormData, { params: { folder: currentCollection, shouldUpdate }})
+        axios.post(`${AppConfig.getChannelsURL()}/upload`, importFormData, { params: { folder: currentCollection, shouldUpdate }})
             .then(response => {
                 setImportModalToggle(false);
             }).catch(error => {
@@ -253,7 +254,7 @@ function Collections() {
             return;
         }
 
-        axios.post(`${protocol}//${host}:3001/channels`, { url, folder: currentCollection, chunkStamp: chunks[0] })
+        axios.post(`${AppConfig.getChannelsURL()}`, { url, folder: currentCollection, chunkStamp: chunks[0] })
             .then(response => {
                 setImportModalToggle(false);
             }).catch(error => {
@@ -266,7 +267,7 @@ function Collections() {
 
     function updateEmail(e: any, id: string, email: string){
         e.preventDefault();
-        axios.put(`${protocol}//${host}:3001/channels`, { email }, { params: { id }})
+        axios.put(`${AppConfig.getChannelsURL()}`, { email }, { params: { id }})
             .then(response => {
                 toast.success('Email updated!');
                 const cur = currentCollection;
@@ -278,7 +279,7 @@ function Collections() {
     }
 
     function deleteChannel(id: string){
-        axios.delete(`${protocol}//${host}:3001/channels/${id}`)
+        axios.delete(`${AppConfig.getChannelsURL()}/${id}`)
             .then(response => {
                 toast.success('Channel has been deleted!');
                 refresh();
@@ -289,7 +290,7 @@ function Collections() {
     }
 
     function downloadChannels(folder: string){
-        window.location.assign(`${protocol}//${host}:3001/channels/export?folder=${folder}`);
+        window.location.assign(`${AppConfig.getChannelsURL()}/export?folder=${folder}`);
     }
 
     function openInfoDrawer(id: string){

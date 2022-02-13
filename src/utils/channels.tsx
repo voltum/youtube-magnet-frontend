@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios"
+import { AppConfig } from "./config";
 
 // Const declarations
 const host = window.location.hostname;
@@ -30,8 +31,8 @@ export interface Channel{
 }
 
 export const getFoldersList = () : Promise<AxiosResponse<Folder[], any>> => {
-    return axios.get<Folder[]>(`${protocol}//${host}:3001/folders`);
+    return axios.get<Folder[]>(`${AppConfig.getFoldersURL()}`);
 }
 export const getChannelsList = (folder: string) : Promise<AxiosResponse<Channel[], any>> => {
-    return axios.get<Channel[]>(`${protocol}//${host}:3001/channels`, { params: { folder } });
+    return axios.get<Channel[]>(`${AppConfig.getChannelsURL()}`, { params: { folder } });
 }

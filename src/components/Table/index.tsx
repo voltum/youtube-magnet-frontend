@@ -79,7 +79,7 @@ export function NumberRangeColumnFilter({
 }
 
 export function SelectColumnFilter({
-    column: { filterValue = [], render, preFilteredRows, setFilter, id },
+    column: { filterValue, render, preFilteredRows, setFilter, id },
   }: FilterProps<any>) {
     // Calculate the options for filtering
     // using the preFilteredRows
@@ -94,7 +94,7 @@ export function SelectColumnFilter({
     // Render a multi-select box
     return (
       <select
-        value={filterValue || ""}
+        value={filterValue || "s"}
         onChange={e => {
           setFilter(e.target.value || undefined)
         }}

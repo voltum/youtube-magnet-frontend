@@ -1,24 +1,23 @@
 import { IdentificationIcon, TrashIcon } from '@heroicons/react/outline';
 import axios from 'axios';
-import React, { FormEvent, FormEventHandler, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Link } from 'react-router-dom';
-import { CellProps, Column, ColumnGroup, Row } from 'react-table';
+import { Column } from 'react-table';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import Modal from '../../components/Modal';
 import Table, { Indicator, NumberRangeColumnFilter, SelectColumnFilter } from '../../components/Table'
 import { useToggle } from '../../hooks/useToggle';
 import { capitalizeFirstLetter } from '../../utils/common';
 import { getChannelsList, getFoldersList } from '../../utils/channels';
 import toast from 'react-hot-toast';
-import Dropdown from '../../components/Dropdown';
 import ModernDrawer from '../../components/Drawer';
 import ChannelInfo from '../../components/ChannelInfo';
-import { TabPanel, useTabs } from 'react-headless-tabs';
-import { TabSelector } from '../../components/Tabs';
 import { EmailIndicator } from '../../components/Table/EmailIndicator';
 import { AppConfig } from '../../utils/config';
+import ModalService from '../../modules/modals/services/ModalService';
+import ManageModal from '../../components/Modal/ManageModal';
+import ImportModal from '../../components/Modal/ImportModal';
+import NewFolderModal from '../../components/Modal/NewFolderModal';
 
 
 function Collections() {
@@ -30,22 +29,10 @@ function Collections() {
     const [chunks, setChunks] = useState<Array<number>>([]);
     const [channelsLoading, setChannelsLoading] = useState(true);
     // Modals
-    const [modalToggle, setModalToggle] = useToggle(false);
-    const [newFolderModalToggle, setNewFolderModalToggle] = useToggle(false);
-    const [importModalToggle, setImportModalToggle] = useToggle(false);
     const [infoDrawerToggle, setInfoDrawerToggle] = useToggle(false);
     const [drawerChannelID, setDrawerChannelID] = useState<string | null>(null);
-    // Tabs
-    const [ activeTab, setActiveTab ] = useTabs(['file', 'single'], 'file');
     // Elements
     const collectionSelect = useRef<HTMLSelectElement>(null);
-    const newFolderForm = useRef<HTMLFormElement>(null);
-    const importFileForm = useRef<HTMLFormElement>(null);
-    const importSingleForm = useRef<HTMLFormElement>(null);
-    // Const declarations
-    const host = window.location.hostname;
-    const protocol = window.location.protocol;
-    // Config axios TBD
 
     const columns: Array<Column<{}>> = [
         {
@@ -203,68 +190,6 @@ function Collections() {
         localStorage.setItem('lastFolder', collectionSelect.current?.value || '');
     }
 
-    function newFolderFormSubmitted(e: any){
-        e.preventDefault();
-        const folderName = e.target.elements.folder_name.value;
-        axios.post(`${AppConfig.getFoldersURL()}`, { name: folderName })
-            .then(response => {
-                window.location.reload();
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    }
-
-    function importFormSubmitted(e: any){
-        e.preventDefault();
-        const importFormData = new FormData(e.target);
-        const file: any = importFormData.get('file');
-
-        const shouldUpdate: boolean = importFormData.get('should_update') ? true : false;
-        
-        if(!file.name){
-            toast.error("Please, select a file!"); 
-            return;
-        }
-
-        axios.post(`${AppConfig.getChannelsURL()}/upload`, importFormData, { params: { folder: currentCollection, shouldUpdate }})
-            .then(response => {
-                setImportModalToggle(false);
-            }).catch(error => {
-                toast.error('Error while making request!');
-            }).finally(() => {
-                const fileInput = importFileForm.current?.file;
-                if(fileInput) fileInput.value = "";
-            })
-    }
-
-    function importSingleFormSubmitted(e: any){
-        e.preventDefault();
-        const importSingleData = new FormData(e.target);
-        const url: any = importSingleData.get('url');
-
-        if(!url) { 
-            toast.error("Please, enter channel's URL");
-            return;
-        }
-        try{
-            const urlObj = new URL(url);
-        } catch {
-            toast.error("Please, enter valid URL");
-            return;
-        }
-
-        axios.post(`${AppConfig.getChannelsURL()}`, { url, folder: currentCollection, chunkStamp: chunks[0] })
-            .then(response => {
-                setImportModalToggle(false);
-            }).catch(error => {
-                toast.error('Error while making request!');
-            }).finally(() => {
-                const urlInput = importSingleForm.current?.url;
-                if(urlInput) urlInput.value = "";
-            })
-    }
-
     function updateEmail(e: any, id: string, email: string){
         e.preventDefault();
         axios.put(`${AppConfig.getChannelsURL()}`, { email }, { params: { id }})
@@ -304,6 +229,20 @@ function Collections() {
         setTimeout(() => {
             setCurrentCollection(cur);
         }, 300);
+        
+        console.log('Opened')
+    }
+
+    function openNewFolderModal(){
+        ModalService.open(NewFolderModal);
+    }
+
+    function openManageModal(){
+        ModalService.open(ManageModal, { data: { rows: collectionsList, columns: collectionsColumns }});
+    }
+
+    function openImportModal(){
+        ModalService.open(ImportModal, { currentCollection, chunks });
     }
 
     return (
@@ -311,7 +250,7 @@ function Collections() {
             <ModernDrawer
                 isOpen={infoDrawerToggle}
                 onClose={()=>(setInfoDrawerToggle(false))}
-                direction='right'      
+                direction='right'
                 className='p-4 w-32'
                 title='Channel info'
                 width={500}
@@ -324,71 +263,22 @@ function Collections() {
             >
                 {<ChannelInfo data={channelsList.find(element => element._id === drawerChannelID)} />}
             </ModernDrawer>
-            <Modal 
-                visible={modalToggle} 
-                onCancel={()=>setModalToggle(false)}
-                header={()=>'Header'}
-                footer={()=><div onClick={()=> { setModalToggle(false); setNewFolderModalToggle(true) }}><Button>Add new collection</Button></div>}
-            >
-                <Table data={collectionsList} columns={collectionsColumns} />
-            </Modal>
 
-            <Modal 
-                visible={newFolderModalToggle} 
-                onCancel={()=>setNewFolderModalToggle(false)}
-                header={()=>'Add new folder'}
-                footer={()=><button form='newFolderForm' type='submit'><Button>Create new folder</Button></button>}
-            >
-                <form ref={newFolderForm} id="newFolderForm" onSubmit={newFolderFormSubmitted}>
-                    <input name="folder_name" placeholder='Folder name'></input>
-                </form>
-            </Modal>
-
-            <Modal 
-                visible={importModalToggle} 
-                onCancel={()=>setImportModalToggle(false)}
-                header={()=>'Import channels'}
-                footer={()=><button form={activeTab === 'file' ? 'importChannelsForm' : 'importSingleChannelForm'} type='submit'><Button>Import</Button></button>}
-            >
-                {/* Tabs navigation */}
-                <nav className='flex'>
-                    <TabSelector isActive={activeTab === 'file'} onClick={() => setActiveTab('file')} >File</TabSelector>
-                    <TabSelector isActive={activeTab === 'single'} onClick={() => setActiveTab('single')} >Single</TabSelector>
-                </nav>
-
-                {/* Tabs panels */}
-                <TabPanel hidden={activeTab !== "file"}>
-                    <form ref={importFileForm} id="importChannelsForm" onSubmit={importFormSubmitted}>
-                        <input type="file" name="file" placeholder='Select scv file'></input>
-                        <div className='my-3'>
-                            <input type="checkbox" id="should_update" name="should_update" value={1} className='w-auto mr-2'/>
-                            <label htmlFor="should_update" className='inline'>Should update</label>
-                        </div>
-                    </form>
-                </TabPanel>
-
-                <TabPanel hidden={activeTab !== "single"}>
-                    <form ref={importSingleForm} id="importSingleChannelForm" onSubmit={importSingleFormSubmitted}>
-                        <input type={'text'} name={'url'} placeholder='Input channel url'></input>
-                    </form>
-                </TabPanel>
-
-            </Modal>
 
             <div className='flex justify-between gap-4'>
                 {collectionsList?
-                    <select className='min-w-min mb-4 p-1 bg-slate-600 outline-none capitalize' ref={collectionSelect} onChange={selectChanged}value={currentCollection || ''}>
+                    <select className='min-w-min mb-4 p-1 bg-slate-600 outline-none capitalize' ref={collectionSelect} onChange={selectChanged} value={currentCollection || ''}>
                         {/* <option value={''}>All</option> */}
                         {collectionsList.map((collection) => (<option value={collection.name} key={collection.name} className='capitalize'>{collection.name}</option>))}
                     </select>
                     : 'Loading'
                 }
                 <div className='flex gap-2'>
-                    {currentCollection?<div onClick={setImportModalToggle}><Button>Import channels</Button></div>:null}
+                    {currentCollection?<div onClick={openImportModal}><Button>Import channels</Button></div>:null}
                     {currentCollection?<div onClick={() => downloadChannels(currentCollection)}><Button>Download channels</Button></div>:null}
-                    <div onClick={setNewFolderModalToggle}><Button>Add new collection</Button></div>
-                    <div onClick={setModalToggle}><Button>Manage collections</Button></div>
-                    <div onClick={() => refresh()}><Button>Refresh</Button></div>
+                    <div onClick={openNewFolderModal}><Button>Add new collection</Button></div>
+                    <div onClick={openManageModal}><Button>Manage collections</Button></div>
+                    <div onClick={refresh}><Button>Refresh</Button></div>
                 </div>
             </div>
             <Card>

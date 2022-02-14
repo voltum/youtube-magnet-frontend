@@ -17,10 +17,12 @@ import NotFound from './pages/NotFound';
 import { Toaster } from 'react-hot-toast';
 import CustomToaster, { CustomToasterComponent } from './components/CustomToaster';
 import Analytics from './pages/Analytics';
+import ModalRoot from './modules/modals/components/ModalRoot';
 
 function App() {
   return (
     <Router>
+      <ModalRoot />
       <CustomToaster />
       <CustomToasterComponent />
       <div className='pt-20'>

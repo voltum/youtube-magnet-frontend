@@ -1,5 +1,12 @@
 # Frontend of Youtube Magnet on React.js
 
+## Technologies
+- Typescript
+- React.js
+- Socket.io
+- Tailwind CSS
+
+
 ## Available Scripts
 
 In the project directory, you can run:

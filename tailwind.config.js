@@ -8,11 +8,18 @@ module.exports = {
         'pattern': "url('/img/pattern.png')"
       },
       boxShadow: {
-        
+
       }
     },
   },
+  parserOptions: {
+    project: "tsconfig.json",
+    tsconfigRootDir: __dirname,
+    sourceType: "module",
+  },
   plugins: [],
-  "tailwindCSS.includeLanguages": { "plaintext": "javascript" },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "javascript"
+  },
   "tailwindCSS.emmetCompletions": true
 }

@@ -2,13 +2,14 @@ import React from 'react'
 import { BeakerIcon } from '@heroicons/react/solid'
 
 interface Props {
-    className?: string
+    className?: string,
+    secondBorder?: string,
     children: any
 }
 
-export default (props: Props) => {
+const Card = (props: Props) => {
     return (
-        <div className={props.className + " px-4 py-3 mb-4 relative box-border before:absolute before:top-0 before:bottom-0 before:border-y after:absolute after:left-0 after:right-0 after:border-x before:border-gray-500 after:border-gray-500 before:left-5 before:right-5 after:top-5 after:bottom-5"}>
+        <div className={`${props.className || ''} ${props.secondBorder ? `border-2 border-${props.secondBorder}-400` : ''} px-4 py-3 mb-4 relative box-border before:absolute before:top-0 before:bottom-0 before:border-y after:absolute after:left-0 after:right-0 after:border-x before:border-gray-500 after:border-gray-500 before:left-5 before:right-5 after:top-5 after:bottom-5`}>
             <div className='z-10 relative'>
                 {props.children}
             </div>
@@ -21,3 +22,5 @@ export default (props: Props) => {
         </div>
     )
 }
+
+export default Card;

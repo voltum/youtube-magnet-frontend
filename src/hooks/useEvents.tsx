@@ -1,26 +1,8 @@
 import { ReactText, ReducerAction, ReducerState, useEffect, useReducer, useRef, useState } from "react"
 // import { toast } from "react-toastify";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import toast, { Toaster } from 'react-hot-toast';
-import { AppConfig } from "../utils/config";
-
-interface ServerToClientEvents {
-    noArg: () => void;
-    basicEmit: (a: number, b: string, c: Buffer) => void;
-    withAck: (d: string, callback: (e: number) => void) => void;
-
-    'events:active': (event: any, callback: (event: any) => void) => void
-    'events:progress': (event: any, callback: (event: any) => void) => void
-    'events:error': (error: any, callback: (error: any) => void) => void
-    'events:empty': (event: any, callback: (event: any) => void) => void
-}
-
-interface ClientToServerEvents {
-}
-
-function getToastText(progress: number){
-
-}
+import { socket } from "../modules/modals/services/Socket";
 
 export const useEvents = () => {
 
@@ -31,10 +13,8 @@ export const useEvents = () => {
 
     const [logging, setLogging] = useState<Array<string>>([]);
 
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(AppConfig.getServerURL(), {});
-
     useEffect(() => {
-        
+
         console.log('Connect');
 
         toast('Connected!');
@@ -54,7 +34,7 @@ export const useEvents = () => {
 
             // setLogging(prevState => [...prevState, `Channel "${event.id}" is processing ${event.progress}%...`]);
         })
-        
+
         socket.on('events:empty', () => {
             setStatus({ visible: false, text: `All channels proceeded!`, type: 'success' });
 

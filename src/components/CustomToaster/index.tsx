@@ -17,8 +17,9 @@ const CustomToaster = () => {
         backgroundColor: '#131923',
         padding: '16px',
         color: 'white',
+        wordBreak: 'break-word'
       },
-      position: 'top-right'
+      position: 'bottom-left'
     }}
   >
     {(t) => (
@@ -39,16 +40,19 @@ const CustomToaster = () => {
 
 export default CustomToaster;
 
-export const CustomToasterComponent = () => {
-  const { status } = useEvents();
+interface ToastProps {
+  status: any
+}
+
+export const CustomToasterComponent = ({ status }: ToastProps) => {
 
   useEffect(() => {
-    if(status.text)
+    if (status.text)
       toast(status.text || '', { id: "mainToast", duration: status.visible ? Infinity : 0 });
-    else 
+    else
       toast.dismiss("mainToast");
 
-    if(status.type === 'success') toast.success(status.text || '', { duration: Infinity });
+    if (status.type === 'success') toast.success(status.text || '', { duration: Infinity });
 
   }, [status]);
 

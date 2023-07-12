@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from 'react'
 
-interface Props{
+interface Props {
     children: React.ReactNode
     onClick?: MouseEventHandler
     type?: 'danger'
@@ -13,7 +13,7 @@ styleMap.set(undefined, 'bg-slate-500 hover:bg-slate-600 active:bg-slate-700');
 
 function Button(props: Props) {
     return (
-        <div className={`inline-block py-1 px-3 cursor-pointer ${styleMap.get(props.type)}`} onClick={props.onClick}>
+        <div className={`inline-block py-1 px-3 cursor-pointer ${styleMap.get(props.type)} transition-all hover:ring-1 hover:ring-white`} onClick={props.onClick}>
             {props.children}
         </div>
     )

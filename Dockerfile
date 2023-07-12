@@ -31,7 +31,8 @@ RUN apk add nginx && \
     cd /var/www/localhost/htdocs && \
     rm -rf node_modules && \
     npm install && \
-    npm run build;
+    npm run build:prod;
+#npm run build:prod for production
 
 CMD ["/bin/sh", "-c", "exec nginx -g 'daemon off;';"]
 

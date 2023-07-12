@@ -15,8 +15,8 @@ interface Props {
 function Modal({ visible, onCancel, header = "Modal", footer, children }: Props) {
 
     return (
-        <div className='flex absolute w-full h-full items-center justify-center z-50'>
-            <div className='relative w-full max-w-lg rounded-md bg-slate-800 ring-1 ring-slate-700'>
+        <div className='flex absolute w-full h-full items-center justify-center z-50 pt-16'>
+            <div className='relative w-full max-w-xl rounded-md bg-slate-800 ring-1 ring-slate-700'>
                 <div onClick={onCancel}>
                     <button className='absolute w-10 h-10 p-2 right-0 top-0 rounded-tr-md' ><XIcon className='text-slate-400' /></button>
                 </div>

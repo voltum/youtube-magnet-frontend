@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap");
 
-html{
+html {
   scroll-behavior: smooth;
 }
-html:before{
+html:before {
   content: "";
   position: fixed;
   top: 0;
@@ -12,28 +12,29 @@ html:before{
   height: 100%;
   z-index: -5;
   /* background: linear-gradient(180deg,rgba(50,70,80,.9) 0, #0d101b 100%); */
-  background: linear-gradient(180deg, #293b4ee6, #0d101b 100%);
+  /* background: linear-gradient(180deg, #293b4ee6, #0d101b 100%);  */
+  background: linear-gradient(180deg, #292a3ee6, #0d101bf5 100%);
 }
 body {
-  font-family: 'Chakra Petch', sans-serif;
+  font-family: "Chakra Petch", sans-serif;
   overflow-y: scroll;
   background-color: #1e293b;
   @apply text-white;
 }
-body::before{
-  content: '';
+body::before {
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 100%;
-  background-image: url('img/pattern.png');
+  background-image: url("img/pattern.png");
   background-size: 4.6875rem;
   background-attachment: initial;
   z-index: -5;
 }
-body::after{
-  content: '';
+body::after {
+  content: "";
   position: fixed;
   top: 0;
   height: 100%;
@@ -41,10 +42,10 @@ body::after{
   right: 0;
   z-index: -10;
   background-color: #273136;
-  background-image: url('img/cover.jpg');
+  background-image: url("img/cover-5.jpg");
   background-position: center;
   background-attachment: initial;
-  transition: .2s linear;
+  transition: 0.2s linear;
   background-size: cover;
 }
 /* width */
@@ -66,30 +67,51 @@ body::after{
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-td>a{
-  @apply underline underline-offset-2 hover:text-blue-300
+td > a {
+  @apply underline underline-offset-2 hover:text-blue-300;
 }
-tbody td, thead th{
+tbody td,
+thead th {
   @apply py-2 px-3 text-sm text-gray-100 text-ellipsis overflow-hidden whitespace-nowrap;
 }
-thead th{
+thead th {
   @apply text-left;
 }
-tbody>tr:nth-child(odd) {
-  background: rgba(255,255,255,0.1);
+tbody > tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.1);
+  transition: 0.05s;
 }
-tbody>tr:nth-child(odd):hover{
+tbody > tr:nth-child(odd):hover {
   box-shadow: inset 0px 0px 7px #ffffff2a;
 }
-form input, input[type='text']{
-  @apply w-full bg-slate-700 text-white outline-none px-2 py-1 ring-1 ring-slate-500 border-slate-500
+form input,
+input[type="text"] {
+  @apply w-full bg-slate-800 text-white outline-none px-2 py-1 ring-1 ring-slate-500 border-slate-500;
 }
-input, optgroup, select, textarea{
-  @apply bg-slate-700 text-white outline-none px-2 py-1 ring-1 ring-slate-500 border-slate-500
+form input[type="radio"] {
+  @apply w-auto mr-1 ring-0;
 }
-button:disabled{
-  @apply opacity-50
+input,
+optgroup,
+select,
+textarea {
+  @apply bg-slate-800 text-white outline-none px-2 py-1 ring-1 ring-slate-500 border-slate-500 transition-all focus:ring-white;
 }
-table select{
+button {
+  @apply border-b-2 border-transparent;
+}
+button:hover {
+  @apply border-white transition-all;
+}
+button:disabled {
+  @apply opacity-50;
+}
+table select {
   width: 18px;
+}
+.minidrawer-button {
+  @apply ring-1 ring-gray-500 h-full px-2;
+}
+.minidrawer-button[disabled] {
+  @apply border-0 pointer-events-none select-none;
 }

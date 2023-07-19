@@ -84,7 +84,7 @@ function ChannelInfo({ data }: Props) {
                             try {
                                 url = new URL(link);
                             } catch (error) {
-                                url = new URL('');
+                                return <li key={link} className='underline underline-offset-2'>{link}</li>;
                             }
                             return <li key={link}><a href={url.href} className='underline underline-offset-2'>{url.hostname + url.pathname}</a></li>
                         })}
